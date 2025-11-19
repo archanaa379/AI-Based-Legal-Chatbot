@@ -1,0 +1,16 @@
+langchain==0.1.0
+langchain-community==0.0.10
+pypdf==3.17.4
+pymupdf==1.23.8
+python-docx==1.1.0
+pandas==2.1.4
+openpyxl==3.1.2
+beautifulsoup4==4.12.2
+requests==2.31.0
+selenium==4.15.2
+lxml==4.9.3
+html2text==2020.1.16
+sentence-transformers==2.2.2
+python-dotenv==1.0.0
+tqdm==4.66.1
+-e .
