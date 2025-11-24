@@ -1,44 +1,44 @@
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
 import os
-from src.helper1 import load_pdf_files, filter_to_minimal_docs, text_split, download_embeddings
-from pinecone import Pinecone
-from pinecone import ServerlessSpec
+from src.helper1 import load_pdf_file, filter_to_minimal_docs, text_split, download_hugging_face_embeddings
+
+from pinecone import Pinecone, ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
 
+load_dotenv()
 
-
-load_dotenv() 
-
-PINECONE_API_KEY= os.getenv("PINECONE_API_KEY")
-OPENAI_API_KEY= os.getenv("OPENAI_API_KEY")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
 os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
-extracted_data = load_pdf_files(data='data/')
+# Load documents
+extracted_data = load_pdf_file(data='data/')
 filter_data = filter_to_minimal_docs(extracted_data)
 text_chunks = text_split(filter_data)
 
-embeddings= download_embeddings()
+# Download embedding model
+embedding = download_hugging_face_embeddings()
 
-pinecone_api_key = PINECONE_API_KEY
+# Pinecone connection
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index_name = "legalai-chatbot"
 
-pc = Pinecone(api_key=pinecone_api_key)
-
-index_name = "legal-chatbot"
-
-if not pc.has_index(index_name):
+# Check if index exists
+if index_name not in [i["name"] for i in pc.list_indexes()]:
     pc.create_index(
-        name = index_name,
-        dimension=384,  # Dimension of the embeddings
-        metric="cosine",  # Cosine similarity
-        spec=ServerlessSpec(cloud="aws", region="us-east-1")
+        name=index_name,
+        dimension=384,
+        metric="cosine",
+        spec=ServerlessSpec(cloud="aws", region="us-east-1"),
     )
 
+index = pc.Index(index_name)
+
+# Store documents
 docsearch = PineconeVectorStore.from_documents(
     documents=text_chunks,
-    embedding=embeddings,
-    index_name=index_name
+    embedding=embedding,
+    index_name=index_name,
 )
-
-
