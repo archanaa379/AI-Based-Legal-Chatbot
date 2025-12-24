@@ -1,21 +1,18 @@
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from typing import List
-from langchain.schema import Document
 from langchain_community.embeddings import HuggingFaceEmbeddings
-
+from typing import List
+from langchain_core.documents import Document
+import os
 
 
 # Extract text from PDF files
 def load_pdf_files(data):
-    loader = DirectoryLoader(
-        data,
-        glob="*.pdf",
-        loader_cls=PyPDFLoader
-    )
-
-    documents = loader.load()
+    documents = []
+    for file in os.listdir(data):
+        if file.endswith(".pdf"):
+            loader = PyPDFLoader(os.path.join(data, file))
+            documents.extend(loader.load())
     return documents
 
 
@@ -44,9 +41,8 @@ def text_split( minimal_docs):
     return texts_chunk
 
 
-
-
-
 def download_embeddings():
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2"
+)
     return embeddings

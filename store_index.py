@@ -4,6 +4,7 @@ from src.helper1 import load_pdf_files, filter_to_minimal_docs, text_split, down
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
 from langchain_pinecone import PineconeVectorStore
+from langchain_community.embeddings import HuggingFaceEmbeddings
 
 
 
@@ -12,8 +13,10 @@ load_dotenv()
 PINECONE_API_KEY= os.getenv("PINECONE_API_KEY")
 OPENAI_API_KEY= os.getenv("OPENAI_API_KEY")
 
-os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
+if PINECONE_API_KEY:
+    os.environ["PINECONE_API_KEY"] = PINECONE_API_KEY
+if OPENAI_API_KEY:
+    os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
 extracted_data = load_pdf_files(data='data/')
 filter_data = filter_to_minimal_docs(extracted_data)
@@ -25,7 +28,7 @@ pinecone_api_key = PINECONE_API_KEY
 
 pc = Pinecone(api_key=pinecone_api_key)
 
-index_name = "legal-chatbot"
+index_name = "legal-chatbot1"
 
 if not pc.has_index(index_name):
     pc.create_index(
